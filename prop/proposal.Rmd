@@ -3,7 +3,8 @@ title: "STATS 767 Project Proposal"
 author: "Stephen Su, ID 253222842"
 output:
   html_document:
-    fig_caption: yes
+    code_folding: hide
+    df_print: paged
     number_sections: no
   css: style.css
 ---
@@ -19,11 +20,10 @@ body {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-```{r echo=FALSE,include=FALSE}
+```{r warning=FALSE,message=FALSE}
 library(tidyverse)
 library(janitor)
-```
-```{r include=FALSE}
+
 # readr::write_csv(
 #   readr::read_delim(
 #     "https://raw.github.com/ggeop/Myopia-Study/master/myopia.csv",
