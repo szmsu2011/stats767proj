@@ -1,0 +1,44 @@
+---
+title: "STATS 767 Project Proposal"
+author: "Stephen Su, ID 253222842"
+output:
+  html_document:
+    fig_caption: yes
+    number_sections: no
+  css: style.css
+---
+
+<style type="text/css">
+
+body {
+  font-family: serif;
+}
+
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r echo=FALSE,include=FALSE}
+library(tidyverse)
+library(janitor)
+```
+```{r include=FALSE}
+# readr::write_csv(
+#   readr::read_delim(
+#     "https://raw.github.com/ggeop/Myopia-Study/master/myopia.csv",
+#     delim = ";"
+#   ),
+#   "../data/myopia.csv"
+# )
+
+myopia <- readr::read_csv(
+  "../data/myopia.csv",
+  col_types = "__ld______ddddd___"
+) %>%
+  janitor::clean_names() %>%
+  dplyr::mutate(across(
+    where(is.logical),
+    function(x) case_when(x ~ "Yes", !x ~ "No")
+  ))
+```
