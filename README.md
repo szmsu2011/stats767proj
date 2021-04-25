@@ -13,6 +13,8 @@ install.packages("xaringan")
 install.packages("tidyverse")
 install.packages("janitor")
 install.packages("MASS")
+install.packages("BiocManager")
+BiocManager::install("mixOmics")
 ```
 
 ## The Data

@@ -5,14 +5,18 @@ output:
   html_document:
     code_folding: hide
     df_print: paged
+    fig_caption: yes
     number_sections: no
   css: style.css
+bibliography: refs.bib
+csl: apa.csl
 ---
 
 <style type="text/css">
 
 body {
   font-family: serif;
+  text-align: justify;
 }
 
 </style>
@@ -23,6 +27,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r warning=FALSE,message=FALSE}
 library(tidyverse)
 library(janitor)
+library(knitr)
 
 # readr::write_csv(
 #   readr::read_delim(
@@ -42,3 +47,38 @@ myopia <- readr::read_csv(
     function(x) case_when(x ~ "Yes", !x ~ "No")
   ))
 ```
+
+## The Data
+The dataset is sourced from [ggeop/Myopia-Study](https://github.com/ggeop/Myopia-Study) [@ggeop] for a study of the risk factors of developing myopia in children, which is a subset from the Orinda Longitudinal Study of Myopia (OLSM) collected in 1989-1990 and 2000-2001. The dataset consists of 618 observations and 17 variables. In particular, the project will focus on the following six numeric variables and one categorical variable:
+
+```{r results="asis"}
+knitr::kable(
+  data.frame(
+    Variable_Name = names(myopia),
+    Unit = c("boolean", "years", rep("hours per week", 5)),
+    Description = c(
+      "Myopia within the first five years of follow up",
+      "Age at first visit",
+      "Time spent engaging in sports/outdoor activities",
+      "Time spent reading for pleasure",
+      "Time spent playing video/computer games or working on the computer",
+      "Time spent reading or studying for school assignments",
+      "Time spent watching television"
+    )
+  )
+)
+```
+
+## Question of Interest
+The project aims to explore the relationship between the onset of myopia in children and lifestyle risk factors as per the mentioned variables and produce a statistical predictive model.
+
+## Methodologies
+The project will utilise the methods from STATS 767. A linear discriminant analysis (LDA) and quadratic discriminant analysis (QDA) are considered suitable for modelling the multivariate relationship for the purpose of establishing grouping for the characteristics of myopic and non-myopic children. The LDA and QDA models will also be compared to other methods, including PLS-DA and the logistic regression. The statistical methods used in this project are from **base R** [@baseR], the **MASS** [@MASS] and **mixOmics** [@mixOmics] packages.
+
+## Deliverables of the Project
+The final deliverables of the project consist of an RMarkdown report and an HTML slideshow for the presentation using **rmarkdown** [@rmd] and **xaringan** [@xar]. All materials required to reproduce this project can be found at the Github repository [szmsu2011/stats767proj](https://github.com/szmsu2011/stats767proj).
+
+
+\newpage
+
+## Bibliography

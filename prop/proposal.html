@@ -47,6 +47,15 @@ if (!!window.navigator.userAgent.match("MSIE 8")) {
 !function(a){"use strict";a.matchMedia=a.matchMedia||function(a){var b,c=a.documentElement,d=c.firstElementChild||c.firstChild,e=a.createElement("body"),f=a.createElement("div");return f.id="mq-test-1",f.style.cssText="position:absolute;top:-100em",e.style.background="none",e.appendChild(f),function(a){return f.innerHTML='&shy;<style media="'+a+'"> #mq-test-1 { width: 42px; }</style>',c.insertBefore(e,d),b=42===f.offsetWidth,c.removeChild(e),{matches:b,media:a}}}(a.document)}(this),function(a){"use strict";function b(){u(!0)}var c={};a.respond=c,c.update=function(){};var d=[],e=function(){var b=!1;try{b=new a.XMLHttpRequest}catch(c){b=new a.ActiveXObject("Microsoft.XMLHTTP")}return function(){return b}}(),f=function(a,b){var c=e();c&&(c.open("GET",a,!0),c.onreadystatechange=function(){4!==c.readyState||200!==c.status&&304!==c.status||b(c.responseText)},4!==c.readyState&&c.send(null))};if(c.ajax=f,c.queue=d,c.regex={media:/@media[^\{]+\{([^\{\}]*\{[^\}\{]*\})+/gi,keyframes:/@(?:\-(?:o|moz|webkit)\-)?keyframes[^\{]+\{(?:[^\{\}]*\{[^\}\{]*\})+[^\}]*\}/gi,urls:/(url\()['"]?([^\/\)'"][^:\)'"]+)['"]?(\))/g,findStyles:/@media *([^\{]+)\{([\S\s]+?)$/,only:/(only\s+)?([a-zA-Z]+)\s?/,minw:/\([\s]*min\-width\s*:[\s]*([\s]*[0-9\.]+)(px|em)[\s]*\)/,maxw:/\([\s]*max\-width\s*:[\s]*([\s]*[0-9\.]+)(px|em)[\s]*\)/},c.mediaQueriesSupported=a.matchMedia&&null!==a.matchMedia("only all")&&a.matchMedia("only all").matches,!c.mediaQueriesSupported){var g,h,i,j=a.document,k=j.documentElement,l=[],m=[],n=[],o={},p=30,q=j.getElementsByTagName("head")[0]||k,r=j.getElementsByTagName("base")[0],s=q.getElementsByTagName("link"),t=function(){var a,b=j.createElement("div"),c=j.body,d=k.style.fontSize,e=c&&c.style.fontSize,f=!1;return b.style.cssText="position:absolute;font-size:1em;width:1em",c||(c=f=j.createElement("body"),c.style.background="none"),k.style.fontSize="100%",c.style.fontSize="100%",c.appendChild(b),f&&k.insertBefore(c,k.firstChild),a=b.offsetWidth,f?k.removeChild(c):c.removeChild(b),k.style.fontSize=d,e&&(c.style.fontSize=e),a=i=parseFloat(a)},u=function(b){var c="clientWidth",d=k[c],e="CSS1Compat"===j.compatMode&&d||j.body[c]||d,f={},o=s[s.length-1],r=(new Date).getTime();if(b&&g&&p>r-g)return a.clearTimeout(h),h=a.setTimeout(u,p),void 0;g=r;for(var v in l)if(l.hasOwnProperty(v)){var w=l[v],x=w.minw,y=w.maxw,z=null===x,A=null===y,B="em";x&&(x=parseFloat(x)*(x.indexOf(B)>-1?i||t():1)),y&&(y=parseFloat(y)*(y.indexOf(B)>-1?i||t():1)),w.hasquery&&(z&&A||!(z||e>=x)||!(A||y>=e))||(f[w.media]||(f[w.media]=[]),f[w.media].push(m[w.rules]))}for(var C in n)n.hasOwnProperty(C)&&n[C]&&n[C].parentNode===q&&q.removeChild(n[C]);n.length=0;for(var D in f)if(f.hasOwnProperty(D)){var E=j.createElement("style"),F=f[D].join("\n");E.type="text/css",E.media=D,q.insertBefore(E,o.nextSibling),E.styleSheet?E.styleSheet.cssText=F:E.appendChild(j.createTextNode(F)),n.push(E)}},v=function(a,b,d){var e=a.replace(c.regex.keyframes,"").match(c.regex.media),f=e&&e.length||0;b=b.substring(0,b.lastIndexOf("/"));var g=function(a){return a.replace(c.regex.urls,"$1"+b+"$2$3")},h=!f&&d;b.length&&(b+="/"),h&&(f=1);for(var i=0;f>i;i++){var j,k,n,o;h?(j=d,m.push(g(a))):(j=e[i].match(c.regex.findStyles)&&RegExp.$1,m.push(RegExp.$2&&g(RegExp.$2))),n=j.split(","),o=n.length;for(var p=0;o>p;p++)k=n[p],l.push({media:k.split("(")[0].match(c.regex.only)&&RegExp.$2||"all",rules:m.length-1,hasquery:k.indexOf("(")>-1,minw:k.match(c.regex.minw)&&parseFloat(RegExp.$1)+(RegExp.$2||""),maxw:k.match(c.regex.maxw)&&parseFloat(RegExp.$1)+(RegExp.$2||"")})}u()},w=function(){if(d.length){var b=d.shift();f(b.href,function(c){v(c,b.href,b.media),o[b.href]=!0,a.setTimeout(function(){w()},0)})}},x=function(){for(var b=0;b<s.length;b++){var c=s[b],e=c.href,f=c.media,g=c.rel&&"stylesheet"===c.rel.toLowerCase();e&&g&&!o[e]&&(c.styleSheet&&c.styleSheet.rawCssText?(v(c.styleSheet.rawCssText,e,f),o[e]=!0):(!/^([a-zA-Z:]*\/\/)/.test(e)&&!r||e.replace(RegExp.$1,"").split("/")[0]===a.location.host)&&("//"===e.substring(0,2)&&(e=a.location.protocol+e),d.push({href:e,media:f})))}w()};x(),c.update=x,c.getEmValue=t,a.addEventListener?a.addEventListener("resize",b,!1):a.attachEvent&&a.attachEvent("onresize",b)}}(this);
 };
 </script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
 <script>
 
 /**
@@ -214,7 +223,7 @@ window.initializeCodeFolding = function(show) {
     // create a collapsable div to wrap the code in
     var div = $('<div class="collapse r-code-collapse"></div>');
     var showThis = (show || $(this).hasClass('fold-show')) && !$(this).hasClass('fold-hide');
-    if (showThis) div.addClass('in');
+    if (showThis) div.collapse('show');
     var id = 'rcode-643E0F36' + currentIndex++;
     div.attr('id', id);
     $(this).before(div);
@@ -222,7 +231,7 @@ window.initializeCodeFolding = function(show) {
 
     // add a show code button right above
     var showCodeText = $('<span>' + (showThis ? 'Hide' : 'Code') + '</span>');
-    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs code-folding-btn pull-right"></button>');
+    var showCodeButton = $('<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm code-folding-btn pull-right float-right"></button>');
     showCodeButton.append(showCodeText);
     showCodeButton
         .attr('data-toggle', 'collapse')
@@ -1550,11 +1559,6 @@ window.onload = function() {
     </style>
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
 <script type="text/javascript">
 if (window.hljs) {
   hljs.configure({languages: []});
@@ -1567,32 +1571,6 @@ if (window.hljs) {
 
 
 
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
 
 
 
@@ -1603,10 +1581,6 @@ h6 {
   max-width: 940px;
   margin-left: auto;
   margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
 }
 img {
   max-width:100%;
@@ -1623,6 +1597,9 @@ button.code-folding-btn:focus {
 summary {
   display: list-item;
 }
+pre code {
+  padding: 0;
+}
 </style>
 
 
@@ -1635,7 +1612,6 @@ summary {
   max-height: 500px;
   min-height: 44px;
   overflow-y: auto;
-  background: white;
   border: 1px solid #ddd;
   border-radius: 4px;
 }
@@ -1702,11 +1678,11 @@ summary {
 
 
 
-<div class="fluid-row" id="header">
+<div id="header">
 
-<div class="btn-group pull-right">
-<button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
-<ul class="dropdown-menu" style="min-width: 50px;">
+<div class="btn-group pull-right float-right">
+<button type="button" class="btn btn-default btn-xs btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span>Code</span> <span class="caret"></span></button>
+<ul class="dropdown-menu dropdown-menu-right" style="min-width: 50px;">
 <li><a id="rmd-show-all-code" href="#">Show All Code</a></li>
 <li><a id="rmd-hide-all-code" href="#">Hide All Code</a></li>
 </ul>
@@ -1724,11 +1700,13 @@ summary {
 
 body {
   font-family: serif;
+  text-align: justify;
 }
 
 </style>
 <pre class="r"><code>library(tidyverse)
 library(janitor)
+library(knitr)
 
 # readr::write_csv(
 #   readr::read_delim(
@@ -1747,6 +1725,112 @@ myopia &lt;- readr::read_csv(
     where(is.logical),
     function(x) case_when(x ~ &quot;Yes&quot;, !x ~ &quot;No&quot;)
   ))</code></pre>
+<div id="the-data" class="section level2">
+<h2>The Data</h2>
+<p>The dataset is sourced from <a href="https://github.com/ggeop/Myopia-Study">ggeop/Myopia-Study</a> <span class="citation">(Papachristou, 2018)</span> for a study of the risk factors of developing myopia in children, which is a subset from the Orinda Longitudinal Study of Myopia (OLSM) collected in 1989-1990 and 2000-2001. The dataset consists of 618 observations and 17 variables. In particular, the project will focus on the following six numeric variables and one categorical variable:</p>
+<pre class="r"><code>knitr::kable(
+  data.frame(
+    Variable_Name = names(myopia),
+    Unit = c(&quot;boolean&quot;, &quot;years&quot;, rep(&quot;hours per week&quot;, 5)),
+    Description = c(
+      &quot;Myopia within the first five years of follow up&quot;,
+      &quot;Age at first visit&quot;,
+      &quot;Time spent engaging in sports/outdoor activities&quot;,
+      &quot;Time spent reading for pleasure&quot;,
+      &quot;Time spent playing video/computer games or working on the computer&quot;,
+      &quot;Time spent reading or studying for school assignments&quot;,
+      &quot;Time spent watching television&quot;
+    )
+  )
+)</code></pre>
+<table>
+<colgroup>
+<col width="14%"></col>
+<col width="15%"></col>
+<col width="69%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Variable_Name</th>
+<th align="left">Unit</th>
+<th align="left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">myopic</td>
+<td align="left">boolean</td>
+<td align="left">Myopia within the first five years of follow up</td>
+</tr>
+<tr class="even">
+<td align="left">age</td>
+<td align="left">years</td>
+<td align="left">Age at first visit</td>
+</tr>
+<tr class="odd">
+<td align="left">sporthr</td>
+<td align="left">hours per week</td>
+<td align="left">Time spent engaging in sports/outdoor activities</td>
+</tr>
+<tr class="even">
+<td align="left">readhr</td>
+<td align="left">hours per week</td>
+<td align="left">Time spent reading for pleasure</td>
+</tr>
+<tr class="odd">
+<td align="left">comphr</td>
+<td align="left">hours per week</td>
+<td align="left">Time spent playing video/computer games or working on the computer</td>
+</tr>
+<tr class="even">
+<td align="left">studyhr</td>
+<td align="left">hours per week</td>
+<td align="left">Time spent reading or studying for school assignments</td>
+</tr>
+<tr class="odd">
+<td align="left">tvhr</td>
+<td align="left">hours per week</td>
+<td align="left">Time spent watching television</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="question-of-interest" class="section level2">
+<h2>Question of Interest</h2>
+<p>The project aims to explore the relationship between the onset of myopia in children and lifestyle risk factors as per the mentioned variables and produce a statistical predictive model.</p>
+</div>
+<div id="methodologies" class="section level2">
+<h2>Methodologies</h2>
+<p>The project will utilise the methods from STATS 767. A linear discriminant analysis (LDA) and quadratic discriminant analysis (QDA) are considered suitable for modelling the multivariate relationship for the purpose of establishing grouping for the characteristics of myopic and non-myopic children. The LDA and QDA models will also be compared to other methods, including PLS-DA and the logistic regression. The statistical methods used in this project are from <strong>base R</strong> <span class="citation">(R Core Team, 2021)</span>, the <strong>MASS</strong> <span class="citation">(Venables &amp; Ripley, 2002)</span> and <strong>mixOmics</strong> <span class="citation">(F et al., 2017)</span> packages.</p>
+</div>
+<div id="deliverables-of-the-project" class="section level2">
+<h2>Deliverables of the Project</h2>
+<p>The final deliverables of the project consist of an RMarkdown report and an HTML slideshow for the presentation using <strong>rmarkdown</strong> <span class="citation">(Xie et al., 2018)</span> and <strong>xaringan</strong> <span class="citation">(Xie, 2021)</span>. All materials required to reproduce this project can be found at the Github repository <a href="https://github.com/szmsu2011/stats767proj">szmsu2011/stats767proj</a>.</p>
+<div style="page-break-after: always;"></div>
+</div>
+<div id="bibliography" class="section level2 unnumbered">
+<h2>Bibliography</h2>
+<div id="refs" class="references">
+<div id="ref-mixOmics">
+<p>F, R., B, G., A, S., &amp; K-A, L. C. (2017). MixOmics: An r package for ’omics feature selection and multiple data integration. <em>PLoS Computational Biology</em>, <em>13</em>(11), e1005752. <a href="http://www.mixOmics.org">http://www.mixOmics.org</a></p>
+</div>
+<div id="ref-ggeop">
+<p>Papachristou, G. (2018). <em>Myopia study</em>. <a href="https://github.com/ggeop/Myopia-Study">https://github.com/ggeop/Myopia-Study</a></p>
+</div>
+<div id="ref-baseR">
+<p>R Core Team. (2021). <em>R: A language and environment for statistical computing</em>. R Foundation for Statistical Computing. <a href="https://www.R-project.org/">https://www.R-project.org/</a></p>
+</div>
+<div id="ref-MASS">
+<p>Venables, W. N., &amp; Ripley, B. D. (2002). <em>Modern applied statistics with s</em> (Fourth). Springer. <a href="http://www.stats.ox.ac.uk/pub/MASS4">http://www.stats.ox.ac.uk/pub/MASS4</a></p>
+</div>
+<div id="ref-xar">
+<p>Xie, Y. (2021). <em>Xaringan: Presentation ninja</em>. <a href="https://CRAN.R-project.org/package=xaringan">https://CRAN.R-project.org/package=xaringan</a></p>
+</div>
+<div id="ref-rmd">
+<p>Xie, Y., Allaire, J. J., &amp; Grolemund, G. (2018). <em>R markdown: The definitive guide</em>. Chapman; Hall/CRC. <a href="https://bookdown.org/yihui/rmarkdown">https://bookdown.org/yihui/rmarkdown</a></p>
+</div>
+</div>
+</div>
 
 
 
@@ -1775,7 +1859,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
   $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
+    $(this).parent().toggleClass('nav-tabs-open');
   });
 });
 </script>
