@@ -2,11 +2,10 @@
 title: "STATS 767 Project Proposal"
 author: "Stephen Su, ID 253222842"
 output:
-  html_document:
-    code_folding: hide
+  pdf_document:
     df_print: paged
     fig_caption: yes
-    number_sections: no
+    number_sections: yes
   css: style.css
 bibliography: refs.bib
 csl: apa.csl
@@ -24,7 +23,7 @@ body {
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-```{r warning=FALSE,message=FALSE}
+```{r warning=FALSE,message=FALSE,echo=FALSE}
 library(tidyverse)
 library(janitor)
 library(knitr)
@@ -51,7 +50,7 @@ myopia <- readr::read_csv(
 ## The Data
 The dataset is sourced from [ggeop/Myopia-Study](https://github.com/ggeop/Myopia-Study) [@ggeop] for a study of the risk factors of developing myopia in children, which is a subset from the Orinda Longitudinal Study of Myopia (OLSM) collected in 1989-1990 and 2000-2001. The dataset consists of 618 observations and 17 variables. In particular, the project will focus on the following six numeric variables and one categorical variable:
 
-```{r results="asis"}
+```{r results="asis",echo=FALSE}
 knitr::kable(
   data.frame(
     Variable_Name = names(myopia),
