@@ -9,6 +9,7 @@ output:
   css: style.css
 bibliography: refs.bib
 csl: apa.csl
+urlcolor: blue
 ---
 
 <style type="text/css">
