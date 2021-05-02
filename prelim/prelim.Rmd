@@ -1,0 +1,98 @@
+---
+title: "STATS 767 Project: Exploratory Analysis"
+author: "Stephen Su, ID 253222842"
+output:
+  html_document:
+    code_folding: hide
+    df_print: paged
+    fig_caption: yes
+    number_sections: yes
+  css: style.css
+urlcolor: blue
+---
+
+<style type="text/css">
+
+body {
+  font-family: serif;
+  text-align: justify;
+}
+
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, dev.args = list(type = "cairo-png"))
+```
+```{r warning=FALSE,message=FALSE}
+library(tidyverse)
+library(janitor)
+library(GGally)
+
+myopia <- readr::read_csv(
+  "../data/myopia.csv",
+  col_types = "__ld______ddddd___"
+) %>%
+  janitor::clean_names() %>%
+  dplyr::mutate(across(
+    where(is.logical),
+    function(x) case_when(x ~ "Yes", !x ~ "No")
+  ))
+```
+
+# The Data
+```{r}
+myopia
+
+summary(myopia)
+```
+
+# Visual Analysis
+```{r fig.align='center',message=FALSE}
+myopia %>%
+  GGally::ggpairs(
+    ggplot2::aes(col = myopic),
+    columns = 2:7
+  )
+```
+All numeric variables except for `age` are heavily right-skewed.
+
+## Transformation for Mitigating Skewness
+```{r fig.align='center',message=FALSE,warning=FALSE}
+myopia %>%
+  dplyr::mutate(
+    log_age = log(age),
+    across(-(1:2), log1p, .names = "log1p_{col}"), # log1p since min(x) == 0
+  ) %>%
+  dplyr::select(-(2:7)) %>%
+  GGally::ggpairs(
+    ggplot2::aes(col = myopic),
+    columns = 2:7
+  ) +
+  ggplot2::labs(
+    title = "Transformed Data",
+    subtitle = "By" ~ x %->% log(1 + x) ~ "for all" ~ x ~
+    "except for" ~ age %->% log(age),
+    parse = TRUE
+  )
+```
+Logging seems to over-fix skewness of `sporthr` and `tvhr`, no difference for `age`.
+```{r fig.align='center',message=FALSE}
+myopia_2 <- myopia %>%
+  dplyr::mutate(
+    across(4:6, log1p, .names = "log1p_{col}"), # log1p since min(x) == 0
+    across(c(3, 7), sqrt, .names = "sqrt_{col}") # Avoid over-fixing
+  ) %>%
+  dplyr::select(-(3:7))
+
+myopia_2 %>%
+  GGally::ggpairs(
+    ggplot2::aes(col = myopic),
+    columns = 2:7
+  )
+```
+The transformed data looks far better, despite substantial departure from normality.
+
+## Exploration for Effects to Myopia
+```{r fig.align='center'}
+
+```
