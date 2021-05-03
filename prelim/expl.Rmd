@@ -77,22 +77,36 @@ myopia %>%
 ```
 Logging seems to over-fix skewness of `sporthr` and `tvhr`, no difference for `age`.
 ```{r fig.align='center',message=FALSE}
-myopia_2 <- myopia %>%
+(myopia_2 <- myopia %>%
   dplyr::mutate(
     across(4:6, log1p, .names = "log1p_{col}"), # log1p since min(x) == 0
     across(c(3, 7), sqrt, .names = "sqrt_{col}") # Avoid over-fixing
   ) %>%
-  dplyr::select(-(3:7))
-
-myopia_2 %>%
+  dplyr::select(-(3:7))) %>%
   GGally::ggpairs(
     ggplot2::aes(col = myopic),
     columns = 2:7
+  ) +
+  ggplot2::labs(
+    title = "Transformed Data",
+    subtitle = "By" ~ x %->% log(1 + x) ~
+    "for readhr, comphr, studyhr and" ~
+    x %->% sqrt(x) ~
+    "for sporthr, tvhr",
+    parse = TRUE
   )
 ```
 The transformed data looks far better, despite substantial departure from normality.
 
 ## Exploration for Effects to Myopia
 ```{r fig.align='center'}
-
+myopia_2 %>%
+  tidyr::pivot_longer(-1, "var") %>%
+  ggplot(aes(x = myopic, y = value)) +
+  geom_boxplot(outlier.shape = 1) +
+  ggplot2::facet_wrap(~var, scales = "free_y") +
+  ggplot2::labs(
+    title = "Univariate Association with Myopia",
+    x = "", y = ""
+  )
 ```
