@@ -14,6 +14,7 @@ install.packages("tidyverse")
 install.packages("janitor")
 install.packages("GGally")
 install.packages("MASS")
+install.packages("DescTools")
 install.packages("BiocManager")
 BiocManager::install("mixOmics")
 ```
