@@ -232,7 +232,7 @@ mixOmics::plotIndiv(
   ellipse.level = .5
 )
 
-plot(perf(myopia_plsda, validation = "loo"))
+plot(mixOmics::perf(myopia_plsda, validation = "loo"))
 
 mixOmics::get.confusion_matrix(
   myopia_2[["myopic"]],
@@ -275,7 +275,7 @@ i_max <- which.max(rowSums(tn_and_tp))
 tn_and_tp %>%
   ggplot(aes(
     x = sort(Specificity, decreasing = TRUE),
-    y = sort(Sensitivity, decreasing = FALSE)
+    y = sort(Sensitivity)
   )) +
   geom_line(col = "steelblue", lwd = 1) +
   ggplot2::scale_x_reverse() +
