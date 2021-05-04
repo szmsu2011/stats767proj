@@ -70,9 +70,12 @@ myopia %>%
   ) +
   ggplot2::labs(
     title = "Transformed Data",
-    subtitle = "By" ~ x %->% log(1 + x) ~ "for all" ~ x ~
-    "except for" ~ age %->% log(age),
-    parse = TRUE
+    subtitle = expression(
+      "By" ~ x %->% log(1 + x) ~
+      "for all" ~ x ~
+      "except for" ~
+      age %->% log(age)
+    )
   )
 ```
 Logging seems to over-fix skewness of `sporthr` and `tvhr`, no difference for `age`.
@@ -89,11 +92,12 @@ Logging seems to over-fix skewness of `sporthr` and `tvhr`, no difference for `a
   ) +
   ggplot2::labs(
     title = "Transformed Data",
-    subtitle = "By" ~ x %->% log(1 + x) ~
-    "for readhr, comphr, studyhr and" ~
-    x %->% sqrt(x) ~
-    "for sporthr, tvhr",
-    parse = TRUE
+    subtitle = expression(
+      "By" ~ x %->% log(1 + x) ~
+      "for readhr, comphr, studyhr and" ~
+      x %->% sqrt(x) ~
+      "for sporthr, tvhr"
+    )
   )
 ```
 The transformed data looks far better, despite substantial departure from normality.
