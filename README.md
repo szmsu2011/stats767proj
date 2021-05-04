@@ -15,6 +15,8 @@ install.packages("janitor")
 install.packages("GGally")
 install.packages("MASS")
 install.packages("DescTools")
+install.packages("pROC")
+install.packages("MuMIn")
 install.packages("BiocManager")
 BiocManager::install("mixOmics")
 ```

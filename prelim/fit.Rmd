@@ -29,6 +29,8 @@ library(janitor)
 library(MASS)
 library(DescTools)
 library(mixOmics)
+library(MuMIn)
+library(pROC)
 
 myopia <- readr::read_csv(
   "../data/myopia.csv",
@@ -39,8 +41,6 @@ myopia <- readr::read_csv(
     where(is.logical),
     function(x) case_when(x ~ "Yes", !x ~ "No")
   ))
-
-# Inherited from prelim/expl.Rmd
 myopia_2 <- myopia %>%
   dplyr::mutate(
     across(4:6, log1p, .names = "log1p_{col}"),
@@ -215,4 +215,96 @@ dplyr::bind_cols(
     lwd = 1
   ) +
   ggplot2::labs(title = "PC Score Plot")
+```
+PCA is doing quite poorly in separating the group of myopic people from the normal.
+
+# Partial Least Squares for Discriminant Analysis (PLS-DA)
+```{r fig.align='center'}
+myopia_plsda <- mixOmics::plsda(myopia_2[-1], factor(myopia_2[["myopic"]]), 6)
+
+mixOmics::plotIndiv(
+  myopia_plsda,
+  comp = 1:2,
+  group = myopia_2[["myopic"]],
+  ind.names = FALSE,
+  legend = TRUE,
+  ellipse = TRUE,
+  ellipse.level = .5
+)
+
+plot(perf(myopia_plsda, validation = "loo"))
+
+mixOmics::get.confusion_matrix(
+  myopia_2[["myopic"]],
+  predicted = predict(
+    myopia_plsda,
+    myopia_2[-1],
+    dist = "max.dist"
+  )[["class"]][["max.dist"]][, 2]
+)
+```
+Classification rate with max.dist is comparable with LDA, but cannot specify priors.
+
+# Logistic Regression
+```{r fig.align='center',message=FALSE}
+myopia_logis_ini <- glm(factor(myopic) ~ ., data = myopia_2, family = "binomial")
+
+oo <- options(na.action = "na.fail")
+logis_all <- MuMIn::dredge(myopia_logis_ini, rank = "AICc")
+options(oo)
+
+(myopia_logis <- glm(
+  MuMIn::get.models(logis_all, 1)[[1]][["formula"]],
+  data = myopia_2,
+  family = "binomial"
+)) %>%
+  summary()
+
+roc_logis <- pROC::roc(
+  response = myopia_2[["myopic"]],
+  predictor = fitted(myopia_logis)
+)
+
+tn_and_tp <- with(roc_logis, tibble(
+  Specificity = specificities,
+  Sensitivity = sensitivities
+))
+
+i_max <- which.max(rowSums(tn_and_tp))
+
+tn_and_tp %>%
+  ggplot(aes(
+    x = sort(Specificity, decreasing = TRUE),
+    y = sort(Sensitivity, decreasing = FALSE)
+  )) +
+  geom_line(col = "steelblue", lwd = 1) +
+  ggplot2::scale_x_reverse() +
+  geom_abline(slope = 1, intercept = 1) +
+  geom_point(
+    data = tn_and_tp[i_max, ],
+    size = 2,
+    col = "red"
+  ) +
+  geom_text(
+    data = tn_and_tp[i_max, ],
+    label = paste("c =", round(
+      roc_logis[["thresholds"]][i_max], 3
+    )),
+    position = position_nudge(x = .02, y = -.02),
+    col = "red",
+    hjust = 0
+  ) +
+  ggplot2::labs(
+    title = "ROC Curve of Logistic Regression",
+    x = "Specificity",
+    y = "Sensitivity"
+  ) +
+  ggplot2::theme_bw()
+
+list(
+  sensitivity = as.numeric(tn_and_tp[i_max, 2]),
+  specificity = as.numeric(tn_and_tp[i_max, 1]),
+  auc = as.numeric(roc_logis[["auc"]]),
+  c_optim = roc_logis[["thresholds"]][i_max]
+)
 ```
