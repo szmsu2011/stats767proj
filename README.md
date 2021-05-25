@@ -8,11 +8,11 @@ To reproduce the deliverables of the project, you will need to install the follo
 
 ```r
 install.packages("rmarkdown")
-install.packages("yaml")
 install.packages("xaringan")
 install.packages("tidyverse")
 install.packages("janitor")
 install.packages("GGally")
+install.packages("colorspace")
 install.packages("MASS")
 install.packages("DescTools")
 install.packages("pROC")

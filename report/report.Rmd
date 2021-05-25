@@ -1,0 +1,149 @@
+---
+title: "A Multivariate Approach to Modelling Lifestyle Risk Factors of Children Myopia in the US"
+author: "Stephen Su, STATS 767"
+output:
+  pdf_document:
+    fig_caption: yes
+    number_sections: yes
+  css: style.css
+bibliography: refs.bib
+csl: apa.csl
+urlcolor: blue
+---
+
+<style type="text/css">
+
+body {
+  font-family: serif;
+  text-align: justify;
+}
+
+</style>
+
+```{r setup, include = FALSE}
+library(knitr)
+opts_chunk$set(
+  message = FALSE, warning = FALSE, echo = FALSE, dpi = 110,
+  fig.height = 3.5, fig.align = "center", comment = "#>",
+  dev.args = list(png = list(type = "cairo"))
+)
+```
+```{r lib}
+library(tidyverse)
+library(janitor)
+library(GGally)
+library(colorspace)
+library(MASS)
+library(DescTools)
+library(mixOmics)
+library(MuMIn)
+library(pROC)
+```
+
+# Introduction
+
+## Background
+
+The association between lifestyle factors and the development and subsequent progression of myopia among children has been long discussed and researched within the academic area. Among them, the Orinda Longitudinal Study of Myopia conducted research on children myopia spanning over 10 years. The research produced data that are both useful in exploring the lifestyle risk factors of myopia and a valuable case study for building and testing multivariate data models and analysis. This paper attempts to preliminarily analyse the OLSM myopia dataset and produce a multivariate model.
+
+## The Data
+
+The dataset is from [ggeop/Myopia-Study](https://github.com/ggeop/Myopia-Study) [@ggeop], which is a subset from the original data collected in 1989-1990 and 2000-2001. The dataset consists of 618 observations and 17 variables. The main focus of the paper is around numeric, lifestyle-related (non-definitional) variables and the logical variable indicating the prevalence of myopia, which are represented by the following variables:
+
+```{r data}
+myopia <- readr::read_csv(
+  "../data/myopia.csv",
+  col_types = "__ld______ddddd___"
+) %>%
+  janitor::clean_names() %>%
+  dplyr::mutate(across(
+    where(is.logical),
+    function(x) case_when(x ~ "Yes", !x ~ "No")
+  ))
+
+knitr::kable(
+  data.frame(
+    Variable_Name = names(myopia),
+    Unit = c("boolean", "years", rep("hours per week", 5)),
+    Description = c(
+      "Myopia within the first five years of follow up",
+      "Age at first visit",
+      "Time spent engaging in sports/outdoor activities",
+      "Time spent reading for pleasure",
+      "Time spent playing video/computer games or working on the computer",
+      "Time spent reading or studying for school assignments",
+      "Time spent watching television"
+    )
+  )
+)
+```
+
+Note: “Non-definitional” means the variables do not serve as an optometrical reference to myopia.
+
+## Outputs and Deliverables
+
+This paper and the project presentation only includes selective outputs serving as the final deliverable, including a **GGally** plot [@ggally] and model outputs from **base R** [@baseR], the **MASS** [@MASS] and **mixOmics** [@mixOmics] packages. Detailed model building, intermediary models, and materials, such as R code, required to reproduce this paper can be found at the Github repository [szmsu2011/stats767proj](https://github.com/szmsu2011/stats767proj).
+
+# Exploratory Analysis
+
+A preliminary visualisation of the selected data suggests heavy right-skewness except for the numeric variable `age`. As a convention, a log-transformation to all numeric variables except for `age` attempts to mitigate the skewness, yet the minima of the variables are zero. Instead, the `log1p` transformation is applied across the variables. Nevertheless, a subsequent plot of the transformed data indicates the `log1p` transformation seems to over-correct the skewness of variables `sporthr` and `tvhr`. Therefore, a final decision is made to transform variables `readhr`, `comphr` and `studyhr` by $x \rightarrow log(1 + x)$ and `sporthr` and `tvhr` by $x \rightarrow \sqrt{x}$.
+
+```{r explore, fig.cap = "The transformed data is a considerable improvement from the original, notwithstanding a substantial departure from normality. All subsequent discussions are based on the transformed data."}
+(myopia_2 <- myopia %>%
+  dplyr::mutate(
+    across(4:6, log1p, .names = "log1p_{col}"),
+    across(c(3, 7), sqrt, .names = "sqrt_{col}")
+  ) %>%
+  dplyr::select(-(3:7))) %>%
+  GGally::ggpairs(
+    ggplot2::aes(col = myopic),
+    columns = 2:7,
+    upper = list(continuous = wrap("cor", size = 2))
+  )
+```
+
+```{r effect, fig.cap = "  "}
+quantile_f <- function(p) {
+  purrr::map(
+    p,
+    function(p) {
+      eval(parse(
+        text = paste0("function(x) quantile(x, probs = ", p, ", na.rm = TRUE)")
+      ))
+    }
+  ) %>% purrr::set_names(p)
+}
+
+myopia_2 %>%
+  tidyr::pivot_longer(-1, "var") %>%
+  dplyr::group_by(myopic, var) %>%
+  dplyr::summarise(across(value, quantile_f(seq(0, 1, .001)))) %>%
+  dplyr::ungroup() %>%
+  tidyr::pivot_longer(
+    dplyr::starts_with(paste0("value", "_")),
+    names_to = ".quantile",
+    values_to = ".value"
+  ) %>%
+  dplyr::mutate(.quantile = 100 * as.numeric(
+    gsub(paste0("value", "_"), "", .quantile)
+  )) %>%
+  ggplot(aes(myopic, .value, col = .quantile, group = .quantile)) +
+  geom_point() +
+  geom_line() +
+  ggplot2::facet_wrap(~var, scales = "free_y") +
+  ggplot2::labs(
+    title = "Univariate Association with Myopia",
+    col = "Quantile", x = "Is Myopic", y = ""
+  ) +
+  colorspace::scale_colour_continuous_diverging(
+    mid = 50, c1 = 120
+  )
+```
+
+Figure 2 ...
+
+# Models and Methodologies
+
+\newpage
+
+# Bibliography
