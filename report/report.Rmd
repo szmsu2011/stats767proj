@@ -28,6 +28,7 @@ opts_chunk$set(
   dev.args = list(png = list(type = "cairo"))
 )
 ```
+
 ```{r lib}
 library(tidyverse)
 library(janitor)
@@ -35,16 +36,16 @@ library(GGally)
 library(colorspace)
 library(MASS)
 library(DescTools)
-library(mixOmics)
 library(MuMIn)
 library(pROC)
 ```
+
 
 # Introduction
 
 ## Background
 
-The association between lifestyle factors and the development and subsequent progression of myopia among children has been long discussed and researched within the academic area. Among them, the Orinda Longitudinal Study of Myopia conducted research on children myopia spanning over 10 years. The research produced data that are both useful in exploring the lifestyle risk factors of myopia and a valuable case study for building and testing multivariate data models and analysis. This paper attempts to preliminarily analyse the OLSM myopia dataset and produce a multivariate model.
+The association between lifestyle factors and the development and subsequent progression of myopia among children has been long discussed and researched within the academic area. Among them, the Orinda Longitudinal Study of Myopia conducted research on children myopia spanning over 10 years. The research produced data that are both useful in exploring the lifestyle risk factors of myopia and a valuable case study for building and testing multivariate data models and analysis. This paper attempts to analyse the OLSM myopia dataset and produce a multivariate model.
 
 ## The Data
 
@@ -78,11 +79,11 @@ knitr::kable(
 )
 ```
 
-Note: “Non-definitional” means the variables do not serve as an optometrical reference to myopia.
+Note: "Non-definitional" means the variables do not serve as an optometrical reference to myopia.
 
 ## Outputs and Deliverables
 
-This paper and the project presentation only includes selective outputs serving as the final deliverable, including a **GGally** plot [@ggally] and model outputs from **base R** [@baseR], the **MASS** [@MASS] and **mixOmics** [@mixOmics] packages. Detailed model building, intermediary models, and materials, such as R code, required to reproduce this paper can be found at the Github repository [szmsu2011/stats767proj](https://github.com/szmsu2011/stats767proj).
+This paper and the project presentation only includes selective outputs serving as the final deliverable, including a **GGally** plot [@ggally] and model outputs from **base R** [@baseR] and the R **MASS** [@MASS] package. The detailed model building steps, intermediary models, and materials, such as the R source code, required to reproduce this paper can be found at the Github repository [szmsu2011/stats767proj](https://github.com/szmsu2011/stats767proj).
 
 # Exploratory Analysis
 
@@ -102,7 +103,7 @@ A preliminary visualisation of the selected data suggests heavy right-skewness e
   )
 ```
 
-```{r effect, fig.cap = "  "}
+```{r effect, fig.cap = "The bivariate correlations with myopia of the numeric variables are relatively small."}
 quantile_f <- function(p) {
   purrr::map(
     p,
@@ -132,7 +133,7 @@ myopia_2 %>%
   geom_line() +
   ggplot2::facet_wrap(~var, scales = "free_y") +
   ggplot2::labs(
-    title = "Univariate Association with Myopia",
+    title = "Bivariate Association with Myopia",
     col = "Quantile", x = "Is Myopic", y = ""
   ) +
   colorspace::scale_colour_continuous_diverging(
@@ -140,9 +141,189 @@ myopia_2 %>%
   )
 ```
 
-Figure 2 ...
+A quantile plot, which is an extension to a boxplot, indicates a weak positive bivariate correlation with `log1p_readhr` and `log1p_studyhr` to myopia as well as a negative correlation with `log1p_sporthr`. The factors affecting myopia development include complicated aspects, including lifestyle, gene, other conditions and their complications. Therefore, without surprise, bivariate correlations of each variable are small, which is typical in medical statistics. A pairs plot shows only a moderate correlation between `log1p_studyhr` and `age` ($\rho \approx 0.412$); that is, the expected study hours of typical children increase with age. In conjunction with all the variance inflation factors being below 1.5, it is reasonable to dismiss the concern of multicollinearity. The within-group variabilities are relatively similar.
 
-# Models and Methodologies
+# Methodologies and Model Diagnostics
+
+## Candidate Models
+
+Upon approaching multivariate data, intuitively, Principal Component Analysis, a dimension reduction technique, is considered first. Principal Component Analysis (abbr. PCA) produces a linear space with a dimension equalling to the rank of the design matrix $\mathbf{X}$, by consecutively maximising the variance of each principal component under the constraint that the sum of squares of coefficients equal one and each principal component is orthogonal to all previous ones. As the most fundamental multivariate statistical model, PCA does not preserve the relationship of the variables and thus ignores the features other than the maximal variance of the principal components upon dimension reduction. As a result, PCA might not separate the myopic groups well enough in achieving the main objectives.
+
+As the objective is in an attempt to model and classify a single categorical variable with a set of numeric variables, The Linear Discriminant Analysis (abbr. LDA) is an alternative to PCA. Similar to PCA, LDA is a dimension reduction technique producing linear discriminant functions - linear combinations of the original variables. Instead of maximising the variability of each dimension, LDA attempts to maximise the *ANOVA F-statistic*, which represents the ratio of the between-group variance against the within-group variance. The maximum dimension of linear discriminant functions is one less of the number of levels. The implication for the myopic category is a single-dimension linear discriminant function. Also, LDA is particularly suitable for data with numeric variables on the same *natural* scale (i.e., in hours except for age), making LDA an ideal candidate as the final model. The classification of categories is based on the Bayes Discriminant Rule, which compares the posterior probability, satisfying
+
+\begin{equation} f(\theta_i | \mathbf{x}) \propto f(\theta_i)f(\mathbf{x} | \theta_i) = \pi_if(\mathbf{x}) \end{equation}
+
+$\pi_i$ represents the prior probability of developing myopia during childhood, $f(\mathbf{x})$ is the likelihood (conditional probabilities given the myopia status) from the sample. Without specifying the prior probability, the `lda()` function assumes a prior equalling sample proportion [@MASS], which is probably not a prior potentially giving the most accurate predictions. On the other hand, a US research on children myopia suggests a prevalence of 24% [@preval18]. As such, the first LDA fit takes the prior (0.76, 0.24). Nevertheless, it is precarious to assume this is the correct prior, and adjustments may be needed upon evaluating the predictive power of the model, including techniques like cross-validation.
+
+Other alternative multivariate models to PCA and LDA are Quadratic Discriminant Analysis (abbr. QDA) and PLS-Discriminant Analysis (abbr. PLS-DA). QDA relaxes the assumption of equality of within-group covariance required for LDA by separating the groups with a quadratic surface. Under the expectation that the within-group variances are similar, QDA may not out-perform LDA and is probably not needed. Furthermore, as QDA models the whole covariance matrix without dimension reduction as well as the use of quadratic combinations, the selective interpretation of loadings for PCA and LDA is not possible. Similarly, PLS-DA is a comprise of LDA towards PCA upon rank deficiency and is thus also unneeded.
+
+It is tempting to compare the predictive power of the final model (from STATS 767) to other commonly used statistical models. As the question of interest is to model a Bernoulli (Yes/No) categorical variable with a set of numeric variables, the classical frequentist approach is multiple logistic regression. Hence, the performance of the final multivariate model (LDA) is compared against multiple logistic regression.
+
+## Model Fitting and Evaluation
+
+This section compares the performance of LDA and QDA using leave-1-out cross-validation. A prior of (0.76, 0.24) is used for the preliminary models for evaluation and subsequent adjustments.
+
+The results of leave-1-out cross-validation show a high specificity yet extremely low sensitivity for both LDA and QDA, notwithstanding a high overall correct classification rate, at (0.99, 0, 0.86) for LDA and (0.97, 0.02, 0.84) for QDA. The ridiculous results are partially due to the low sample likelihood of being myopic. Besides, the settings of the prior is also a major contributing factor, as $sensitivity \rightarrow 1$ as $\pi_1 \rightarrow 1$ yet $specificity \rightarrow 1$ as $\pi_0 \rightarrow 1$. On the other hand, $\mathbb{P}(Type\,I) \rightarrow 1$ as $\pi_1 \rightarrow 1$ and $\mathbb{P}(Type\,II) \rightarrow 1$ as $\pi_0 \rightarrow 1$. Therefore, instead of sole sensitivity or specificity, the goal is to search for a prior, which minimises the *balanced error rate*. Achieving such is equivalent to maximising the value of $sensitivity + specificity$, also known as the *sensitivity-specificity trade-off*. The area under curve of the *receiver operating characteristic* (ROC) curve computed using **DescTools** [@Desc] of LDA and QDA are 0.628 and 0.672, respectively, which are relatively similar. Given that both models possess similar predictive power, yet LDA allows selective interpretation of loadings which QDA does not, the decision is to select LDA, under a prior such that the *BER* is minimised, as the final model.
+
+```{r eval, fig.cap = "The receiver operating characteristic (ROC) curve of LDA"}
+roc <- function(data, y, .f, p) {
+  y <- substitute(y)
+
+  tn_and_tp <- purrr::map(
+    p,
+    function(x) {
+      fit <- .f(
+        formula(paste(deparse(y), "~ .")),
+        data = data,
+        prior = c(1 - x, x)
+      )
+      cm <- table(
+        data[[deparse(y)]],
+        predict(fit)[["class"]]
+      )
+      diag(cm) / rowSums(cm)
+    }
+  ) %>%
+    purrr::set_names(seq_len(length(p))) %>%
+    dplyr::bind_rows()
+
+  i_max <- which.max(rowSums(tn_and_tp))
+
+  print(tn_and_tp %>%
+    ggplot(aes(x = No, y = Yes)) +
+    geom_line(col = "steelblue", lwd = 1) +
+    ggplot2::scale_x_reverse() +
+    geom_abline(slope = 1, intercept = 1) +
+    geom_point(
+      data = tn_and_tp[i_max, ],
+      size = 2,
+      col = "red"
+    ) +
+    geom_text(
+      data = tn_and_tp[i_max, ],
+      label = paste("p =", p[i_max]),
+      position = position_nudge(x = .02, y = -.02),
+      col = "red",
+      hjust = 0
+    ) +
+    ggplot2::labs(
+      x = "Specificity",
+      y = "Sensitivity"
+    ) +
+    ggplot2::theme_bw())
+
+  cat("Optimal Prior")
+  list(
+    sensitivity = as.numeric(tn_and_tp[i_max, 2]),
+    specificity = as.numeric(tn_and_tp[i_max, 1]),
+    auc = with(tn_and_tp, DescTools::AUC(No, Yes)),
+    p_optim = p[i_max]
+  )
+}
+roc(myopia_2, myopic, MASS::lda, p = seq(.001, .999, .001))
+```
+
+The optimal prior $(\pi_0, \pi_1)$ minimising *BER* is (0.508, 0.492), which is close to a uniform prior, giving a sensitivity of 0.593 and specificity of 0.618. The area under curve of the *ROC* curve is 0.628, indicating a weak-moderate predictive power ($AUC = 0.5$ is a random predictor). Again, this is typical and unsurprising in medical statistics. A weak relationship is claimable between lifestyle and myopia.
+
+## Model Output and Interpretation
+
+```{r out, fig.cap = "The plot of the linear discriminant scores"}
+myopia_lda <- MASS::lda(myopic ~ ., data = myopia_2, prior = c(.508, .492))
+
+dplyr::bind_cols(
+  predict(myopia_lda)[["x"]],
+  myopic = myopia_2[["myopic"]]
+) %>%
+  ggplot(aes(x = LD1, y = myopic)) +
+  geom_boxplot(outlier.alpha = 0) +
+  geom_jitter(shape = 1, height = .02) +
+  ggplot2::labs(y = "Is Myopic")
+
+cor(dplyr::bind_cols(
+  as_tibble(predict(myopia_lda)[["x"]]),
+  myopia_2[, 2:7]
+))[-1, 1, drop = FALSE] %>%
+  structure(class = "loadings")
+```
+
+As the categorical variable is Bernoulli, there exists up to and only one dimension of linear discriminant function. The scatter-box plot of the one-dimensional linear discriminant scores indicates that `LD1` is higher in myopic children than not. The loadings of linear discriminant function show a weak positive correlation with `age`, moderate positive correlation with `log1p_readr` and high negative correlation with `log1p_sporthr`. The implication is that the risk of myopia increases mildly with age, is moderately associated with a longer focused reading time, and strongly (negatively) associated with time spent in engaging with sports or outdoor activities. Although such findings cannot establish causation, they are on par with our typical belief about myopia. Surprisingly, the relationship of the time spent on studying, computer and television to myopia is unclear, given the linear discriminant scores and loadings.
+
+# Comparison with Classical Frequentist Approach
+
+## The Multiple Logistic Regression
+
+Upon approaching a Bernoulli random variable of interest given a set of numeric explanatory variables, one would immediately think of a multiple logistic regression, whose model expression is given by
+
+\begin{equation} \mathbf{Y}\overset{iid}{\sim}Bernoulli(\pmb{\theta})\;|\;logit(\pmb{\theta})=\mathbf{X}\pmb{\beta},\;\mathbf{Y},\pmb{\theta}\in\mathbb{R}^n,\;\pmb{\beta}\in\mathbb{R}^p,\;\mathbf{X}\in\mathbb{R}^n\times\mathbb{R}^p \end{equation}
+
+A *full logistic regression model* `Y ~ .` is fitted, and the information-theoretic is adopted by searching every sub-model of the full model exhaustively and select the best model ranked by *AICc* [@MuMIn]. As of the LDA findings of linear subspace, quadratic transformation is unnecessary. The best model is
+
+```{r logis}
+myopia_logis_ini <- glm(factor(myopic) ~ ., data = myopia_2, family = "binomial")
+
+oo <- options(na.action = "na.fail")
+logis_all <- MuMIn::dredge(myopia_logis_ini, rank = "AICc")
+options(oo)
+
+myopia_logis <- glm(
+  MuMIn::get.models(logis_all, 1)[[1]][["formula"]],
+  data = myopia_2,
+  family = "binomial"
+)
+
+summary(myopia_logis)
+```
+
+The *residual deviance* ($\mathcal{D} \approx 466.43$) is less than the model’s degrees of freedom ($\nu = 615$), which dismisses the concern of an inadequate fit (overdispersion). The model provides moderate evidence for a positive association between time spent in focused reading and myopia and very strong evidence for a negative association between time spent in engaging with sports or outdoor activities and myopia. The findings from the logistic regression partially agree with LDA.
+
+```{r logisroc, fig.cap = "The receiver operating characteristic (ROC) curve of the multiple logistic regression"}
+roc_logis <- pROC::roc(
+  response = myopia_2[["myopic"]],
+  predictor = fitted(myopia_logis)
+)
+
+tn_and_tp <- with(roc_logis, tibble(
+  Specificity = specificities,
+  Sensitivity = sensitivities
+))
+
+i_max <- which.max(rowSums(tn_and_tp))
+
+tn_and_tp %>%
+  ggplot(aes(
+    x = sort(Specificity, decreasing = TRUE),
+    y = sort(Sensitivity)
+  )) +
+  geom_line(col = "steelblue", lwd = 1) +
+  ggplot2::scale_x_reverse() +
+  geom_abline(slope = 1, intercept = 1) +
+  geom_point(
+    data = tn_and_tp[i_max, ],
+    size = 2,
+    col = "red"
+  ) +
+  geom_text(
+    data = tn_and_tp[i_max, ],
+    label = paste("c =", round(
+      roc_logis[["thresholds"]][i_max], 3
+    )),
+    position = position_nudge(x = .02, y = -.02),
+    col = "red",
+    hjust = 0
+  ) +
+  ggplot2::labs(
+    x = "Specificity",
+    y = "Sensitivity"
+  ) +
+  ggplot2::theme_bw()
+
+list(
+  sensitivity = as.numeric(tn_and_tp[i_max, 2]),
+  specificity = as.numeric(tn_and_tp[i_max, 1]),
+  auc = as.numeric(roc_logis[["auc"]]),
+  c_optim = roc_logis[["thresholds"]][i_max]
+)
+```
 
 \newpage
 

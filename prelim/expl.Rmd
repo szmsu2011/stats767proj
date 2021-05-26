@@ -99,8 +99,10 @@ Logging seems to over-fix skewness of `sporthr` and `tvhr`, no difference for `a
       "for sporthr, tvhr"
     )
   )
+
+round(diag(solve(cor(myopia_2[-1]))), 2)
 ```
-The transformed data looks far better, despite substantial departure from normality.
+The transformed data looks far better, despite substantial departure from normality. The variance inflation factors suggest no multicollinearity.
 
 ## Exploration for Effects to Myopia
 ```{r fig.align='center'}
@@ -110,7 +112,8 @@ myopia_2 %>%
   geom_boxplot(outlier.shape = 1) +
   ggplot2::facet_wrap(~var, scales = "free_y") +
   ggplot2::labs(
-    title = "Univariate Association with Myopia",
+    title = "Bivariate Association with Myopia",
     x = "", y = ""
   )
 ```
+The bivariate correlations with myopia of the numeric variables are relatively small.
