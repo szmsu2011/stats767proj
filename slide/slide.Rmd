@@ -1,0 +1,97 @@
+---
+title: "STATS 767 Project"
+subtitle: "A Multivariate Approach to Modelling Lifestyle Risk Factors of Children Myopia in the US"
+author: "Stephen Su"
+date: "2 June 2021"
+output:
+  xaringan::moon_reader:
+    nature:
+      highlightLines: true
+    css: xaringan-themer.css
+---
+
+```{r setup, echo = FALSE, cache = FALSE, results = 'hide'}
+library(knitr)
+options(
+  htmltools.dir.version = FALSE, htmltools.preserve.raw = FALSE,
+  tibble.width = 60, tibble.print_min = 6
+)
+opts_chunk$set(
+  echo = TRUE, warning = FALSE, message = FALSE, comment = "#>", fig.retina = 3,
+  fig.align = "center", fig.show = "hold", dpi = 110,
+  dev.args = list(png = list(type = "cairo"))
+)
+```
+
+```{r xaringan-themer, include = FALSE, warning = FALSE}
+library(xaringanthemer)
+style_mono_accent(
+  base_color = "#035AA6",
+  header_font_google = google_font("Josefin Sans"),
+  text_font_google = google_font("Montserrat", "400", "400i"),
+  code_font_google = google_font("Fira Mono")
+)
+```
+
+```{r external, include = FALSE}
+read_chunk("slide.R")
+```
+
+## Background
+
+The association of lifestyle factors and myopia has been long discussed.
+
+Since my childhood, I was repeated advised by optometrists that:
+
+* My prescription could keep increasing until adulthood
+
+* Spend more time outdoors, it will save your vision
+
+* **Stay away from those electronic garbage (from Mom)**
+
+* Take regular breaks and avoid prolonged focused reading
+
+With Statistics, can we find supporting evidence for the claims above?
+
+```{r start, echo = 2, error = TRUE}
+```
+
+Finding the answer is not easy, and the realm of medical-related statistics is full of variables with random behaviour (weak correlation, confounding, ...)
+
+---
+
+## The Data
+
+The dataset is from [ggeop/Myopia-Study](https://github.com/ggeop/Myopia-Study).
+
+* A subset of the research from Orinda Longitudinal Study of Myopia
+
+* Conducted in 1989-1990 and 2000-2001
+
+* Consists of 618 observations and 17 variables
+
+However, we are only interested in seven of the variables.
+
+```{r data, echo = 4}
+```
+
+---
+
+## Variable Definition
+
+```{r data-def, echo = FALSE}
+```
+
+---
+
+## A First Glance
+
+```{r prelim, echo = FALSE, fig.height = 4}
+```
+
+---
+
+## Log-Transformation But ...
+
+```{r minimum, highlight.output = c(2, 9)}
+```

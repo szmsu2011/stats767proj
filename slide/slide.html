@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>STATS 767 Project</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Stephen Su" />
+    <meta name="date" content="2021-06-02" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# STATS 767 Project
+## A Multivariate Approach to Modelling Lifestyle Risk Factors of Children Myopia in the US
+### Stephen Su
+### 2 June 2021
+
+---
+
+
+
+
+
+
+
+
+## Background
+
+The association of lifestyle factors and myopia has been long discussed.
+
+Since my childhood, I was repeated advised by optometrists that:
+
+* My prescription could keep increasing until adulthood
+
+* Spend more time outdoors, it will save your vision
+
+* **Stay away from those electronic garbage (from Mom)**
+
+* Take regular breaks and avoid prolonged focused reading
+
+With Statistics, can we find supporting evidence for the claims above?
+
+
+```r
+please_give_me_an_answer()
+```
+
+```
+#&gt; Error: Go find out yourself!
+```
+
+Finding the answer is not easy, and the realm of medical-related statistics is full of variables with random behaviour (weak correlation, confounding, ...)
+
+---
+
+## The Data
+
+The dataset is from [ggeop/Myopia-Study](https://github.com/ggeop/Myopia-Study).
+
+* A subset of the research from Orinda Longitudinal Study of Myopia
+
+* Conducted in 1989-1990 and 2000-2001
+
+* Consists of 618 observations and 17 variables
+
+However, we are only interested in seven of the variables.
+
+
+```r
+myopia
+```
+
+```
+#&gt; # A tibble: 618 x 7
+#&gt;   myopic   age sporthr readhr comphr studyhr  tvhr
+#&gt;   &lt;chr&gt;  &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;
+#&gt; 1 Yes        6      45      8      0       0    10
+#&gt; 2 No         6       4      0      1       1     7
+#&gt; 3 No         6      14      0      2       0    10
+#&gt; 4 Yes        6      18     11      0       0     4
+#&gt; 5 No         5      14      0      0       0     4
+#&gt; 6 No         6      10      6      2       1    19
+#&gt; # ... with 612 more rows
+```
+
+---
+
+## Variable Definition
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; Variable Name &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Unit &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; Description &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; myopic &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; boolean &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Myopia within the first five years of follow up &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; age &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; years &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Age at first visit &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; sporthr &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; hours per week &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Time spent engaging in sports/outdoor activities &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; readhr &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; hours per week &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Time spent reading for pleasure &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; comphr &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; hours per week &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Time spent playing video/computer games or working on the computer &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; studyhr &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; hours per week &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Time spent reading or studying for school assignments &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; tvhr &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; hours per week &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Time spent watching television &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+## A First Glance
+
+&lt;img src="slide_files/figure-html/prelim-1.png" width="770" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Log-Transformation But ...
+
+
+```r
+summary(myopia[-1])
+```
+
+```
+#&gt;       age           sporthr          readhr           comphr      
+*#&gt;  Min.   :5.000   Min.   : 0.00   Min.   : 0.000   Min.   : 0.000  
+#&gt;  1st Qu.:6.000   1st Qu.: 6.00   1st Qu.: 0.000   1st Qu.: 0.000  
+#&gt;  Median :6.000   Median :10.00   Median : 2.000   Median : 1.000  
+#&gt;  Mean   :6.299   Mean   :11.95   Mean   : 2.796   Mean   : 2.105  
+#&gt;  3rd Qu.:6.000   3rd Qu.:16.00   3rd Qu.: 4.000   3rd Qu.: 3.000  
+#&gt;  Max.   :9.000   Max.   :45.00   Max.   :20.000   Max.   :30.000  
+#&gt;     studyhr           tvhr       
+*#&gt;  Min.   : 0.00   Min.   : 0.000  
+#&gt;  1st Qu.: 0.00   1st Qu.: 4.250  
+#&gt;  Median : 1.00   Median : 8.000  
+#&gt;  Mean   : 1.49   Mean   : 8.948  
+#&gt;  3rd Qu.: 2.00   3rd Qu.:12.000  
+#&gt;  Max.   :15.00   Max.   :31.000
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

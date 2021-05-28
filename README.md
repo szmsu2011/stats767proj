@@ -7,8 +7,8 @@ This repository consists of an R project for modelling myopia data with multivar
 To reproduce the deliverables of the project, you will need to install the following packages and their dependencies as follows:
 
 ```r
-install.packages("rmarkdown")
 install.packages("xaringan")
+install.packages("xaringanthemer")
 install.packages("tidyverse")
 install.packages("janitor")
 install.packages("GGally")
