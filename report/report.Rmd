@@ -254,7 +254,7 @@ As the categorical variable is Bernoulli, there exists up to and only one dimens
 
 Upon approaching a Bernoulli random variable of interest given a set of numeric explanatory variables, one would immediately think of a multiple logistic regression, whose model expression is given by
 
-\begin{equation} \mathbf{Y}\overset{iid}{\sim}Bernoulli(\pmb{\theta})\;|\;logit(\pmb{\theta})=\mathbf{X}\pmb{\beta};\;\pmb{\theta}\in\mathbb{R}^n,\;\pmb{\beta}\in\mathbb{R}^p,\;\mathbf{X}\in\mathbb{R}^n\times\mathbb{R}^p \end{equation}
+\begin{equation} \mathbf{Y}\overset{iid}{\sim}Bernoulli(\pmb{\theta})\;|\;logit(\pmb{\theta})=\mathbf{X}\pmb{\beta};\;\pmb{\theta}\in(0,1)^n,\;\pmb{\beta}\in\mathbb{R}^p,\;\mathbf{X}\in\mathbb{R}^n\times\mathbb{R}^p \end{equation}
 
 A *full logistic regression model* `Y ~ .` is fitted, and the information-theoretic is adopted by searching every sub-model of the full model exhaustively and select the best model ranked by *AICc* [@MuMIn]. As of the LDA findings of linear subspace, quadratic transformation is unnecessary. The best model is
 
