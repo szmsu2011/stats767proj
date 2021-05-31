@@ -141,6 +141,8 @@ myopia
 
 &lt;img src="slide_files/figure-html/prelim-1.png" width="770" style="display: block; margin: auto;" /&gt;
 
+* All numeric variables except for `age` are heavily right-skewed.
+
 ---
 
 ## Log-Transformation But ...
@@ -166,6 +168,88 @@ summary(myopia[-1])
 #&gt;  3rd Qu.: 2.00   3rd Qu.:12.000  
 #&gt;  Max.   :15.00   Max.   :31.000
 ```
+
+* A simple log-transformation is not feasible.
+
+* A `log1p` transformation could be a good alternative.
+
+---
+
+## Seems to be Some Overshooting
+
+&lt;img src="slide_files/figure-html/overfix-1.png" width="770" style="display: block; margin: auto;" /&gt;
+
+* A `log1p` transformation seems to over-fix skewness of `sporthr` and `tvhr`.
+
+---
+
+## The Transformed Data
+
+&lt;img src="slide_files/figure-html/data-trans-1.png" width="770" style="display: block; margin: auto;" /&gt;
+
+* The transformed data is far better, despite much departure from normality.
+
+---
+
+## Bivariate Association with Myopia
+
+&lt;img src="slide_files/figure-html/effect-1.png" width="770" style="display: block; margin: auto;" /&gt;
+
+* The bivariate correlations with myopia of the variables are relatively weak.
+
+---
+
+## More Diagnostics
+
+.pull-left[
+
+```r
+myopia_2[-1] %&gt;%
+  array_branch(2) %&gt;%
+  map_dbl(var) %&gt;%
+  as.matrix() %&gt;%
+  round(2)
+```
+
+```
+#&gt;               [,1]
+#&gt; age           0.51
+#&gt; log1p_readhr  0.64
+#&gt; log1p_comphr  0.57
+#&gt; log1p_studyhr 0.45
+#&gt; sqrt_sporthr  1.41
+#&gt; sqrt_tvhr     0.96
+```
+
+* `sqrt` transformed variables have substantially larger variance.
+
+* EOCV is compromised for better normality.
+]
+
+.pull-right[
+
+```r
+cor(myopia_2[-1]) %&gt;%
+  solve() %&gt;%
+  diag() %&gt;%
+  as.matrix() %&gt;%
+  round(2)
+```
+
+```
+#&gt;               [,1]
+#&gt; age           1.22
+#&gt; log1p_readhr  1.11
+#&gt; log1p_comphr  1.01
+#&gt; log1p_studyhr 1.31
+#&gt; sqrt_sporthr  1.05
+#&gt; sqrt_tvhr     1.05
+```
+
+* The variance inflation factors are reasonably small.
+
+* Concern of multicollinearity can be dismissed.
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

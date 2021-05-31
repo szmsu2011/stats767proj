@@ -18,8 +18,8 @@ options(
 )
 opts_chunk$set(
   echo = TRUE, warning = FALSE, message = FALSE, comment = "#>", fig.retina = 3,
-  fig.align = "center", fig.show = "hold", dpi = 110,
-  dev.args = list(png = list(type = "cairo"))
+  fig.align = "center", fig.show = "hold", cache.path = "cache/", cache = TRUE,
+  dpi = 110, dev.args = list(png = list(type = "cairo"))
 )
 ```
 
@@ -33,7 +33,7 @@ style_mono_accent(
 )
 ```
 
-```{r external, include = FALSE}
+```{r external, include = FALSE, cache = FALSE}
 read_chunk("slide.R")
 ```
 
@@ -89,9 +89,64 @@ However, we are only interested in seven of the variables.
 ```{r prelim, echo = FALSE, fig.height = 4}
 ```
 
+* All numeric variables except for `age` are heavily right-skewed.
+
 ---
 
 ## Log-Transformation But ...
 
 ```{r minimum, highlight.output = c(2, 9)}
 ```
+
+* A simple log-transformation is not feasible.
+
+* A `log1p` transformation could be a good alternative.
+
+---
+
+## Seems to be Some Overshooting
+
+```{r overfix, echo = FALSE, fig.height = 4}
+```
+
+* A `log1p` transformation seems to over-fix skewness of `sporthr` and `tvhr`.
+
+---
+
+## The Transformed Data
+
+```{r data-trans, echo = FALSE, fig.height = 4}
+```
+
+* The transformed data is far better, despite much departure from normality.
+
+---
+
+## Bivariate Association with Myopia
+
+```{r effect, echo = FALSE, fig.height = 4}
+```
+
+* The bivariate correlations with myopia of the variables are relatively weak.
+
+---
+
+## More Diagnostics
+
+.pull-left[
+```{r eov}
+```
+
+* `sqrt` transformed variables have substantially larger variance.
+
+* EOCV is compromised for better normality.
+]
+
+.pull-right[
+```{r vif}
+```
+
+* The variance inflation factors are reasonably small.
+
+* Concern of multicollinearity can be dismissed.
+]
