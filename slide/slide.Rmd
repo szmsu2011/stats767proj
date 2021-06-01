@@ -312,3 +312,33 @@ Contextually, both the explanatory and predictive capabilities are important.
 ---
 
 ## Model Interpretation
+
+```{r score, echo = FALSE, fig.height = 1.7}
+```
+
+.pull-left[
+```{r loadings, echo = FALSE}
+```
+]
+
+.pull-right[
+The risk of developing myopia:
+
+* Increases mildly with age;
+
+* Increases with the time spent in focused reading;
+
+* Decreases with the time spent on sports or outdoor activities.
+
+Surprisingly, the relationship between computer and television use time and myopia is unclear.
+]
+
+---
+
+## LDA cf. Multiple Logistic Regression
+
+Upon approaching a Bernoulli random variable of interest and some numeric covariates, you may recall logistic regression from **STATS 201/208/310/330**:
+
+\begin{equation} \mathbf{Y}\overset{iid}{\sim}Bernoulli(\pmb{\theta})\;|\;logit(\pmb{\theta})=\mathbf{X}\pmb{\beta};\;\pmb{\theta}\in(0,1)^n,\;\pmb{\beta}\in\mathbb{R}^p,\;\mathbf{X}\in\mathbb{R}^n\times\mathbb{R}^p \end{equation}
+
+The information-theoretic approach is adopted.

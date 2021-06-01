@@ -247,3 +247,24 @@ roc_lda[["roc"]]
 
 ## ---- roc-qda
 roc_qda[["roc"]]
+
+## ---- score
+dplyr::bind_cols(
+  predict(myopia_lda)[["x"]],
+  myopic = myopia_2[["myopic"]]
+) %>%
+  ggplot(aes(x = LD1, y = myopic)) +
+  geom_boxplot(outlier.alpha = 0) +
+  geom_jitter(shape = 1, height = .02) +
+  ggplot2::theme(plot.margin = unit(rep(0, 4), "in")) +
+  ggplot2::labs(
+    title = "Linear Discriminant Score Plot",
+    y = "Is Myopic"
+  )
+
+## ---- loadings
+cor(dplyr::bind_cols(
+  as_tibble(predict(myopia_lda)[["x"]]),
+  myopia_2[, 2:7]
+))[-1, 1, drop = FALSE] %>%
+  structure(class = "loadings")
