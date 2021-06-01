@@ -4,7 +4,7 @@
     <title>STATS 767 Project</title>
     <meta charset="utf-8" />
     <meta name="author" content="Stephen Su" />
-    <meta name="date" content="2021-06-02" />
+    <meta name="date" content="2021-06-04" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -14,7 +14,7 @@ class: center, middle, inverse, title-slide
 # STATS 767 Project
 ## A Multivariate Approach to Modelling Lifestyle Risk Factors of Children Myopia in the US
 ### Stephen Su
-### 2 June 2021
+### 4 June 2021
 
 ---
 
@@ -139,7 +139,7 @@ myopia
 
 ## A First Glance
 
-&lt;img src="slide_files/figure-html/prelim-1.png" width="770" style="display: block; margin: auto;" /&gt;
+&lt;img src="slide_files/figure-html/expl-1.png" width="770" style="display: block; margin: auto;" /&gt;
 
 * All numeric variables except for `age` are heavily right-skewed.
 
@@ -187,7 +187,7 @@ summary(myopia[-1])
 
 &lt;img src="slide_files/figure-html/data-trans-1.png" width="770" style="display: block; margin: auto;" /&gt;
 
-* The transformed data is far better, despite much departure from normality.
+* The transformed data is much better, despite departure from normality.
 
 ---
 
@@ -250,6 +250,224 @@ cor(myopia_2[-1]) %&gt;%
 
 * Concern of multicollinearity can be dismissed.
 ]
+
+---
+
+## Candidate Models
+
+Principal Component Analysis (abbr. PCA)
+
+* The first to consider upon approaching multivariate data
+
+* A dimension reduction technique maximising total variability
+
+* May not separate the myopic groups well
+
+**Linear Discriminant Analysis (abbr. LDA)**
+
+* Also a dimension reduction technique, maximises ANOVA F-statistic
+
+* Could be affected by departure from EOCV and normality
+
+**Quadratic Discriminant Analysis (abbr. QDA)**
+
+* Relaxes the assumption of EOCV by modelling the whole Cov matrix
+
+* Does not perform dimension reduction, cannot interpret loadings
+
+PLS-Discriminant Analysis (abbr. PLS-DA)
+
+* The data is far from rank deficiency, thus probably not needed
+
+---
+
+## Preliminary Models
+
+A US study on children myopia suggests a prevalence of 24% (Theophanous et al., 2018) in the 2000s, including those without a need of correcting lenses.
+
+* An *initial* prior of `\((\pi_0, \pi_1) = (0.76, 0.24)\)` is used.
+
+
+```r
+myopia_lda &lt;- lda(myopic ~ ., data = myopia_2, prior = c(.76, .24))
+myopia_qda &lt;- qda(myopic ~ ., data = myopia_2, prior = c(.76, .24))
+```
+
+.pull-left[
+**Leave-One-Out Cross-Validation**
+
+
+```r
+get_cm(
+  myopia_2, myopic, lda,
+  prior = c(.76, .24)
+)
+```
+
+```
+#&gt;       predicted
+#&gt; actual  No Yes
+#&gt;    No  532   5
+#&gt;    Yes  81   0
+```
+]
+
+.pull-right[
+&lt;br&gt;
+
+
+```r
+get_cm(
+  myopia_2, myopic, qda,
+  prior = c(.76, .24)
+)
+```
+
+```
+#&gt;       predicted
+#&gt; actual  No Yes
+#&gt;    No  520  17
+#&gt;    Yes  79   2
+```
+]
+
+---
+
+## What is Wrong Here?
+
+The classification of categories is based on the Bayes Discriminant Rule:
+
+\begin{equation} f(\theta_i | \mathbf{x}) \propto f(\theta_i)f(\mathbf{x} | \theta_i) = \pi_if(\mathbf{x}) \end{equation}
+
+
+```r
+lik_null &lt;- mean(myopia_2[["myopic"]] == "No")
+lik_null / (1 - lik_null) * .76 / .24
+```
+
+```
+#&gt; [1] 20.99383
+```
+
+Under a null model (ignoring all the lifestyle variables), an individual is ~21 times more likely to be classified as non-myopic (posterior odds ratio).
+
+* Remember: The bivariate correlation of *each* variable is weak.
+
+Improving the sensitivity is achievable by increasing `\(\pi_1 = f(\theta_1)\)`.
+
+**However, there exists no free lunch!!**
+
+* `\(\mathbb{P}(\hat{X} = 1 | X = 1) \rightarrow 1\)` as `\(\pi_1 \rightarrow 1\)` and `\(\mathbb{P}(\hat{X} = 0 | X = 0) \rightarrow 1\)` as `\(\pi_0 \rightarrow 1\)`
+
+* `\(\mathbb{P}(\hat{X} = 1 | X = 0) \rightarrow 1\)` as `\(\pi_1 \rightarrow 1\)` and `\(\mathbb{P}(\hat{X} = 0 | X = 1) \rightarrow 1\)` as `\(\pi_0 \rightarrow 1\)`
+
+---
+
+## The Sensitivity/Specificity Trade-Off
+
+Blindly seeking sensitivity or specificity comes at a great price.
+
+* Namely *Type I* and *Type II* errors
+
+Instead, the goal is to minimise the *balanced error rate*.
+
+* Equivalent to maximising the value of `\(sensitivity + specificity\)`
+
+.pull-left[
+**LDA**
+
+
+```
+#&gt; $sensitivity
+#&gt; [1] 0.5925926
+#&gt; 
+#&gt; $specificity
+#&gt; [1] 0.6182495
+#&gt; 
+#&gt; $auc
+#&gt; [1] 0.6277329
+#&gt; 
+#&gt; $p_optim
+#&gt; [1] 0.492
+```
+]
+
+.pull-right[
+**QDA**
+
+
+```
+#&gt; $sensitivity
+#&gt; [1] 0.4444444
+#&gt; 
+#&gt; $specificity
+#&gt; [1] 0.8230912
+#&gt; 
+#&gt; $auc
+#&gt; [1] 0.6718394
+#&gt; 
+#&gt; $p_optim
+#&gt; [1] 0.419
+```
+]
+
+---
+
+## The ROC Curve
+
+.pull-left[
+&lt;img src="slide_files/figure-html/roc-lda-1.png" width="770" style="display: block; margin: auto;" /&gt;
+]
+
+.pull-right[
+&lt;img src="slide_files/figure-html/roc-qda-1.png" width="770" style="display: block; margin: auto;" /&gt;
+]
+
+The receiver operating characteristic curve evaluates the predictive power.
+
+* QDA possesses slightly higher overall predictive power;
+
+* Notwithstanding QDA has `\(sensitivity &lt; 0.5\)` (loses to a coin).
+
+---
+
+## The Decision
+
+The two purposes of statistical models: **explanatory** and **predictive** modelling.
+
+.pull-left[
+**LDA**
+
+* Selective interpretation of loadings makes it an ideal explanatory model.
+
+* It possesses similar overall predictive power as QDA.
+
+* Sensitivity is moderate.
+
+* Specificity is moderate.
+]
+
+.pull-right[
+**QDA**
+
+* Interpretation of loadings is unfeasible, *cannot* serve as an explanatory model.
+
+* It possesses similar overall predictive power as LDA.
+
+* Sensitivity is *poor*.
+
+* Specificity is good.
+]
+
+Contextually, both the explanatory and predictive capabilities are important.
+
+.center[
+**The Linear Discriminant Analysis model, with the prior of `\((\pi_0, \pi_1) = (0.508, 0.492)\)` (approximately uniform, uninformative),&lt;br&gt;is chosen to be the final model.**
+]
+
+---
+
+## Model Interpretation
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

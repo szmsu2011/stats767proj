@@ -2,7 +2,7 @@
 title: "STATS 767 Project"
 subtitle: "A Multivariate Approach to Modelling Lifestyle Risk Factors of Children Myopia in the US"
 author: "Stephen Su"
-date: "2 June 2021"
+date: "4 June 2021"
 output:
   xaringan::moon_reader:
     nature:
@@ -86,7 +86,7 @@ However, we are only interested in seven of the variables.
 
 ## A First Glance
 
-```{r prelim, echo = FALSE, fig.height = 4}
+```{r expl, echo = FALSE, fig.height = 4}
 ```
 
 * All numeric variables except for `age` are heavily right-skewed.
@@ -118,7 +118,7 @@ However, we are only interested in seven of the variables.
 ```{r data-trans, echo = FALSE, fig.height = 4}
 ```
 
-* The transformed data is far better, despite much departure from normality.
+* The transformed data is much better, despite departure from normality.
 
 ---
 
@@ -150,3 +150,165 @@ However, we are only interested in seven of the variables.
 
 * Concern of multicollinearity can be dismissed.
 ]
+
+---
+
+## Candidate Models
+
+Principal Component Analysis (abbr. PCA)
+
+* The first to consider upon approaching multivariate data
+
+* A dimension reduction technique maximising total variability
+
+* May not separate the myopic groups well
+
+**Linear Discriminant Analysis (abbr. LDA)**
+
+* Also a dimension reduction technique, maximises ANOVA F-statistic
+
+* Could be affected by departure from EOCV and normality
+
+**Quadratic Discriminant Analysis (abbr. QDA)**
+
+* Relaxes the assumption of EOCV by modelling the whole Cov matrix
+
+* Does not perform dimension reduction, cannot interpret loadings
+
+PLS-Discriminant Analysis (abbr. PLS-DA)
+
+* The data is far from rank deficiency, thus probably not needed
+
+---
+
+## Preliminary Models
+
+A US study on children myopia suggests a prevalence of 24% (Theophanous et al., 2018) in the 2000s, including those without a need of correcting lenses.
+
+* An *initial* prior of $(\pi_0, \pi_1) = (0.76, 0.24)$ is used.
+
+```{r prelim, echo = -1}
+```
+
+.pull-left[
+**Leave-One-Out Cross-Validation**
+
+```{r loo-lda, echo = 2}
+```
+]
+
+.pull-right[
+<br>
+
+```{r loo-qda}
+```
+]
+
+---
+
+## What is Wrong Here?
+
+The classification of categories is based on the Bayes Discriminant Rule:
+
+\begin{equation} f(\theta_i | \mathbf{x}) \propto f(\theta_i)f(\mathbf{x} | \theta_i) = \pi_if(\mathbf{x}) \end{equation}
+
+```{r odds}
+```
+
+Under a null model (ignoring all the lifestyle variables), an individual is ~21 times more likely to be classified as non-myopic (posterior odds ratio).
+
+* Remember: The bivariate correlation of *each* variable is weak.
+
+Improving the sensitivity is achievable by increasing $\pi_1 = f(\theta_1)$.
+
+**However, there exists no free lunch!!**
+
+* $\mathbb{P}(\hat{X} = 1 | X = 1) \rightarrow 1$ as $\pi_1 \rightarrow 1$ and $\mathbb{P}(\hat{X} = 0 | X = 0) \rightarrow 1$ as $\pi_0 \rightarrow 1$
+
+* $\mathbb{P}(\hat{X} = 1 | X = 0) \rightarrow 1$ as $\pi_1 \rightarrow 1$ and $\mathbb{P}(\hat{X} = 0 | X = 1) \rightarrow 1$ as $\pi_0 \rightarrow 1$
+
+---
+
+## The Sensitivity/Specificity Trade-Off
+
+Blindly seeking sensitivity or specificity comes at a great price.
+
+* Namely *Type I* and *Type II* errors
+
+Instead, the goal is to minimise the *balanced error rate*.
+
+* Equivalent to maximising the value of $sensitivity + specificity$
+
+.pull-left[
+**LDA**
+
+```{r optim-lda, echo = FALSE}
+```
+]
+
+.pull-right[
+**QDA**
+
+```{r optim-qda, echo = FALSE}
+```
+]
+
+---
+
+## The ROC Curve
+
+.pull-left[
+```{r roc-lda, echo = FALSE}
+```
+]
+
+.pull-right[
+```{r roc-qda, echo = FALSE}
+```
+]
+
+The receiver operating characteristic curve evaluates the predictive power.
+
+* QDA possesses slightly higher overall predictive power;
+
+* Notwithstanding QDA has $sensitivity < 0.5$ (loses to a coin).
+
+---
+
+## The Decision
+
+The two purposes of statistical models: **explanatory** and **predictive** modelling.
+
+.pull-left[
+**LDA**
+
+* Selective interpretation of loadings makes it an ideal explanatory model.
+
+* It possesses similar overall predictive power as QDA.
+
+* Sensitivity is moderate.
+
+* Specificity is moderate.
+]
+
+.pull-right[
+**QDA**
+
+* Interpretation of loadings is unfeasible, *cannot* serve as an explanatory model.
+
+* It possesses similar overall predictive power as LDA.
+
+* Sensitivity is *poor*.
+
+* Specificity is good.
+]
+
+Contextually, both the explanatory and predictive capabilities are important.
+
+.center[
+**The Linear Discriminant Analysis model, with the prior of $(\pi_0, \pi_1) = (0.508, 0.492)$ (approximately uniform, uninformative),<br>is chosen to be the final model.**
+]
+
+---
+
+## Model Interpretation
