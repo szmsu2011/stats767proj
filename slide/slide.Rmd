@@ -255,7 +255,7 @@ Instead, the goal is to minimise the *balanced error rate*.
 
 ---
 
-## The ROC Curve
+## The ROC Curves
 
 .pull-left[
 ```{r roc-lda, echo = FALSE}
@@ -341,4 +341,137 @@ Upon approaching a Bernoulli random variable of interest and some numeric covari
 
 \begin{equation} \mathbf{Y}\overset{iid}{\sim}Bernoulli(\pmb{\theta})\;|\;logit(\pmb{\theta})=\mathbf{X}\pmb{\beta};\;\pmb{\theta}\in(0,1)^n,\;\pmb{\beta}\in\mathbb{R}^p,\;\mathbf{X}\in\mathbb{R}^n\times\mathbb{R}^p \end{equation}
 
-The information-theoretic approach is adopted.
+A search for all possible regressions is conducted from the full model.
+
+```{r apm}
+```
+
+The information-theoretic approach is applied, models are ranked by *AICc*.
+
+* i.e., We do not assume the knowledge of the "true model".
+
+* *AICc* penalises additional covariates without value of information.
+
+```{r dredge, echo = c(3, 5)}
+```
+
+---
+
+## The Best Model
+
+```{r best-glm, echo = FALSE, highlight.output = c(13:14, 21:22)}
+```
+
+---
+
+## The Differences
+
+.pull-left[
+```{r optim-glm, echo = FALSE}
+```
+]
+
+.pull-right[
+* Sensitivity loses to LDA (and a coin).
+
+* Specificity loses to QDA.
+
+* Overall predictive power is slightly worse than both LDA and QDA.
+
+* How are they different?
+]
+
+<br>
+
+* The logistic regression either includes or completely excludes a covariate.
+
+* LDA takes into account all the variables (useful and useless) with weights.
+
+* Remember, in our context, we have far-from-enough variables.
+
+* Every variable-dropping in medical-related data analysis shall be **cautious**.
+
+---
+
+## The Conclusion
+
+For US children in the 1990s-2000s, the development of myopia has:
+
+.pull-left[
+Risk Factors
+
+* Age
+
+* Focused Reading
+]
+
+.pull-right[
+Negative Risk Factor
+
+* Sports/Outdoor Activities
+]
+
+<br>
+
+The *minimal-BER* LDA model **beats a coin** in terms of predictive power.
+
+The dataset is better served for building an explanatory model.
+
+<br>
+
+**Improvements needed**:
+
+.pull-left[
+* More Variables
+]
+
+.pull-right[
+* Expand Scope
+]
+
+---
+
+## Study AS-IF To Be Continued ...
+
+<br>
+
+<font size="+2">
+A hypothesis can be drawn from the preliminary findings for future research
+</font>
+
+<br><br><br>
+
+<font size="+2"; color="#035AA6">
+  <center>
+    <b>
+      An overall unhealthy lifestyle is associated with the risk of developing myopia during childhood.
+    </b>
+  </center>
+</font>
+
+---
+
+## References
+
+Andri et mult. al., S. (2021). DescTools: Tools for descriptive statistics.
+
+Barton, K. (2020). MuMIn: Multi-model inference.
+
+Papachristou, G. (2018). Myopia study. https://github.com/ggeop/Myopia-Study
+
+Robin, X., Turck, N., Hainard, A., Tiberti, N., Lisacek, F., Sanchez, J.-C., & Müller,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;M. (2011). PROC: An open-source package for r and s+ to analyze and<br>
+&nbsp;&nbsp;&nbsp;&nbsp;compare roc curves. BMC Bioinformatics, 12, 77.
+
+Schloerke, B., Cook, D., Larmarange, J., Briatte, F., Marbach, M., Thoen, E.,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Elberg, A., & Crowley, J. (2020). GGally: Extension to ’ggplot2’.
+
+Theophanous, C., Modjtahedi, B. S., Batech, M., Marlin, D. S., Luong, T. Q., &<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Fong, D. S. (2018). Myopia prevalence and risk factors in children. Clinical<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Ophthalmology, 12. https://doi.org/10.2147/OPTH.S164641
+
+Venables, W. N., & Ripley, B. D. (2002). Modern applied statistics with s<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(Fourth). Springer.
+
+Xie, Y., Allaire, J. J., & Grolemund, G. (2018). R markdown: The definitive guide.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Chapman; Hall/CRC.

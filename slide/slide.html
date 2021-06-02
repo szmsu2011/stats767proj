@@ -385,7 +385,7 @@ Instead, the goal is to minimise the *balanced error rate*.
 #&gt; [1] 0.6182495
 #&gt; 
 #&gt; $auc
-#&gt; [1] 0.62771
+#&gt; [1] 0.6277559
 #&gt; 
 #&gt; $p_optim
 #&gt; [1] 0.492
@@ -413,7 +413,7 @@ Instead, the goal is to minimise the *balanced error rate*.
 
 ---
 
-## The ROC Curve
+## The ROC Curves
 
 .pull-left[
 &lt;img src="slide_files/figure-html/roc-lda-1.png" width="770" style="display: block; margin: auto;" /&gt;
@@ -510,7 +510,186 @@ Upon approaching a Bernoulli random variable of interest and some numeric covari
 
 \begin{equation} \mathbf{Y}\overset{iid}{\sim}Bernoulli(\pmb{\theta})\;|\;logit(\pmb{\theta})=\mathbf{X}\pmb{\beta};\;\pmb{\theta}\in(0,1)^n,\;\pmb{\beta}\in\mathbb{R}^p,\;\mathbf{X}\in\mathbb{R}^n\times\mathbb{R}^p \end{equation}
 
-The information-theoretic approach is adopted.
+A search for all possible regressions is conducted from the full model.
+
+
+```r
+ini &lt;- glm(factor(myopic) ~ ., data = myopia_2, family = "binomial")
+```
+
+The information-theoretic approach is applied, models are ranked by *AICc*.
+
+* i.e., We do not assume the knowledge of the "true model".
+
+* *AICc* penalises additional covariates without value of information.
+
+
+```r
+logis_all &lt;- MuMIn::dredge(ini, rank = "AICc")
+myopia_logis &lt;- glm(
+  MuMIn::get.models(logis_all, 1)[[1]][["formula"]],
+  data = myopia_2,
+  family = "binomial"
+)
+```
+
+---
+
+## The Best Model
+
+
+```
+#&gt; 
+#&gt; Call:
+#&gt; glm(formula = MuMIn::get.models(logis_all, 1)[[1]][["formula"]], 
+#&gt;     family = "binomial", data = myopia_2)
+#&gt; 
+#&gt; Deviance Residuals: 
+#&gt;     Min       1Q   Median       3Q      Max  
+#&gt; -0.9656  -0.5704  -0.4959  -0.3943   2.3718  
+#&gt; 
+#&gt; Coefficients:
+#&gt;              Estimate Std. Error z value Pr(&gt;|z|)    
+#&gt; (Intercept)   -1.2054     0.3515  -3.430 0.000604 ***
+*#&gt; log1p_readhr   0.3291     0.1567   2.100 0.035712 *  
+*#&gt; sqrt_sporthr  -0.3382     0.1051  -3.218 0.001291 ** 
+#&gt; ---
+#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+#&gt; 
+#&gt; (Dispersion parameter for binomial family taken to be 1)
+#&gt; 
+#&gt;     Null deviance: 480.08  on 617  degrees of freedom
+*#&gt; Residual deviance: 466.43  on 615  degrees of freedom
+*#&gt; AIC: 472.43
+#&gt; 
+#&gt; Number of Fisher Scoring iterations: 5
+```
+
+---
+
+## The Differences
+
+.pull-left[
+
+```
+#&gt; $sensitivity
+#&gt; [1] 0.4691358
+#&gt; 
+#&gt; $specificity
+#&gt; [1] 0.726257
+#&gt; 
+#&gt; $auc
+#&gt; [1] 0.6176058
+#&gt; 
+#&gt; $c_optim
+#&gt; [1] 0.1555962
+```
+]
+
+.pull-right[
+* Sensitivity loses to LDA (and a coin).
+
+* Specificity loses to QDA.
+
+* Overall predictive power is slightly worse than both LDA and QDA.
+
+* How are they different?
+]
+
+&lt;br&gt;
+
+* The logistic regression either includes or completely excludes a covariate.
+
+* LDA takes into account all the variables (useful and useless) with weights.
+
+* Remember, in our context, we have far-from-enough variables.
+
+* Every variable-dropping in medical-related data analysis shall be **cautious**.
+
+---
+
+## The Conclusion
+
+For US children in the 1990s-2000s, the development of myopia has:
+
+.pull-left[
+Risk Factors
+
+* Age
+
+* Focused Reading
+]
+
+.pull-right[
+Negative Risk Factor
+
+* Sports/Outdoor Activities
+]
+
+&lt;br&gt;
+
+The *minimal-BER* LDA model **beats a coin** in terms of predictive power.
+
+The dataset is better served for building an explanatory model.
+
+&lt;br&gt;
+
+**Improvements needed**:
+
+.pull-left[
+* More Variables
+]
+
+.pull-right[
+* Expand Scope
+]
+
+---
+
+## Study AS-IF To Be Continued ...
+
+&lt;br&gt;
+
+&lt;font size="+2"&gt;
+A hypothesis can be drawn from the preliminary findings for future research
+&lt;/font&gt;
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+&lt;font size="+2"; color="#035AA6"&gt;
+  &lt;center&gt;
+    &lt;b&gt;
+      An overall unhealthy lifestyle is associated with the risk of developing myopia during childhood.
+    &lt;/b&gt;
+  &lt;/center&gt;
+&lt;/font&gt;
+
+---
+
+## References
+
+Andri et mult. al., S. (2021). DescTools: Tools for descriptive statistics.
+
+Barton, K. (2020). MuMIn: Multi-model inference.
+
+Papachristou, G. (2018). Myopia study. https://github.com/ggeop/Myopia-Study
+
+Robin, X., Turck, N., Hainard, A., Tiberti, N., Lisacek, F., Sanchez, J.-C., &amp; Müller,&lt;br&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;M. (2011). PROC: An open-source package for r and s+ to analyze and&lt;br&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;compare roc curves. BMC Bioinformatics, 12, 77.
+
+Schloerke, B., Cook, D., Larmarange, J., Briatte, F., Marbach, M., Thoen, E.,&lt;br&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Elberg, A., &amp; Crowley, J. (2020). GGally: Extension to ’ggplot2’.
+
+Theophanous, C., Modjtahedi, B. S., Batech, M., Marlin, D. S., Luong, T. Q., &amp;&lt;br&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Fong, D. S. (2018). Myopia prevalence and risk factors in children. Clinical&lt;br&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Ophthalmology, 12. https://doi.org/10.2147/OPTH.S164641
+
+Venables, W. N., &amp; Ripley, B. D. (2002). Modern applied statistics with s&lt;br&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;(Fourth). Springer.
+
+Xie, Y., Allaire, J. J., &amp; Grolemund, G. (2018). R markdown: The definitive guide.&lt;br&gt;
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;Chapman; Hall/CRC.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

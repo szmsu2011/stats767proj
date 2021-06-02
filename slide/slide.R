@@ -183,6 +183,7 @@ lik_null <- mean(myopia_2[["myopic"]] == "No")
 lik_null / (1 - lik_null) * .76 / .24
 
 ## ---- optim-lda
+library(DescTools)
 roc <- function(data, y, .f, p) {
   y <- substitute(y)
   tn_and_tp <- purrr::map(
@@ -268,3 +269,37 @@ cor(dplyr::bind_cols(
   myopia_2[, 2:7]
 ))[-1, 1, drop = FALSE] %>%
   structure(class = "loadings")
+
+## ---- apm
+ini <- glm(factor(myopic) ~ ., data = myopia_2, family = "binomial")
+
+## ---- dredge
+library(MuMIn)
+oo <- options(na.action = "na.fail")
+logis_all <- MuMIn::dredge(ini, rank = "AICc")
+options(oo)
+myopia_logis <- glm(
+  MuMIn::get.models(logis_all, 1)[[1]][["formula"]],
+  data = myopia_2,
+  family = "binomial"
+)
+
+## ---- best-glm
+summary(myopia_logis)
+
+## ---- optim-glm
+roc_logis <- pROC::roc(
+  response = myopia_2[["myopic"]],
+  predictor = fitted(myopia_logis)
+)
+tn_and_tp <- with(roc_logis, tibble(
+  Specificity = specificities,
+  Sensitivity = sensitivities
+))
+i_max <- which.max(rowSums(tn_and_tp))
+list(
+  sensitivity = as.numeric(tn_and_tp[i_max, 2]),
+  specificity = as.numeric(tn_and_tp[i_max, 1]),
+  auc = as.numeric(roc_logis[["auc"]]),
+  c_optim = roc_logis[["thresholds"]][i_max]
+)
