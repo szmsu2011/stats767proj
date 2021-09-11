@@ -21,6 +21,6 @@ install.packages("BiocManager")
 BiocManager::install("mixOmics")
 ```
 
-## The Data
+## The Data  
 
 The dataset `myopia.csv` is sourced from [ggeop/Myopia-Study](https://github.com/ggeop/Myopia-Study).
